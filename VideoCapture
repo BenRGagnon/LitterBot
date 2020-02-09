@@ -1,0 +1,59 @@
+import cv2
+import os
+
+face_cascade = cv2.CascadeClassifier('C:/opencv/build/etc/haarcascades/haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier('C:/opencv/build/etc/haarcascades/haarcascade_eye.xml')
+
+path = r"C:\Users\bgagn\OneDrive\Desktop\Vision Test Image"
+cap = cv2.VideoCapture(0)
+
+#find the width and height of the video frame
+width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
+height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float
+
+#set the vertical and horizontal
+vfov = 43.30/2
+hfov = 70.42/2
+
+while 1:
+
+    # reads frames from a camera 
+    ret, img = cap.read()
+
+    # convert to gray scale of each frames 
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Detects faces of different sizes in the input image 
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    eyes = eye_cascade.detectMultiScale(gray, 1.1, 5)
+
+    for (x, y, w, h) in faces:
+        cv2.rectangle(img, (x, y), (x + w, y + h), (255, 255, 0), 3)
+        print('face: ', x, y)
+        hdeg = 0 + (x - 0) * ((hfov) / (width))
+        vdeg = 0 + (y - 0) * ((vfov) / (height))
+        print(hdeg, vdeg)
+    for (x, y, w, h) in eyes:
+        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        print('eye:', x, y)
+        hdege = 0 + (x - 0) * ((hfov) / (width))
+        vdege = 0 + (y - 0) * ((vfov) / (height))
+        print(hdege, vdege)
+
+            # Display an image in a window
+    cv2.imshow('img', img)
+
+    #save image from webcame if at least one face is detected
+    if len(faces) > 0:
+        cv2.imwrite(os.path.join(path,'face1.jpg'),img)
+        print('Image Saved')
+    # Wait for Esc key to stop
+    k = cv2.waitKey(30) & 0xff
+    if k == 27:
+        break
+
+# Close the window 
+cap.release()
+
+# De-allocate any associated memory usage 
+cv2.destroyAllWindows()  
